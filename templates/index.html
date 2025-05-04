@@ -1,0 +1,71 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>🧠 Copilot Studio</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <div class="container">
+    <h1>🧠 Copilot Studio (MongoDB Agent)</h1>
+    <p>Ask your database using natural language</p>
+
+    <input type="text" id="nl_query" placeholder="e.g., Show users older than 30">
+    <button onclick="askQuery()">Ask</button>
+
+    <pre id="query_output"></pre>
+    <div id="result_output"></div>
+    <div id="explanation_output" class="explanation"></div>
+  </div>
+
+  <script>
+    async function askQuery() {
+      const query = document.getElementById("nl_query").value;
+      document.getElementById("query_output").textContent = "Processing...";
+      document.getElementById("result_output").innerHTML = "";
+      document.getElementById("explanation_output").innerHTML = "";
+
+      const response = await fetch("/ask", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query: query })
+      });
+
+      const data = await response.json();
+
+      if (data.error) {
+        document.getElementById("query_output").textContent = `❌ ${data.error}`;
+        return;
+      }
+
+      document.getElementById("query_output").textContent = data.query;
+
+      if (data.mutation) {
+        document.getElementById("result_output").innerHTML = `<p>⚠️ Detected a mutation operation. Not executed.</p>`;
+      } else {
+        if (data.results && data.results.length > 0) {
+          let html = "<table><thead><tr>";
+          Object.keys(data.results[0]).forEach(key => {
+            html += `<th>${key}</th>`;
+          });
+          html += "</tr></thead><tbody>";
+          data.results.forEach(row => {
+            html += "<tr>";
+            Object.values(row).forEach(val => {
+              html += `<td>${JSON.stringify(val)}</td>`;
+            });
+            html += "</tr>";
+          });
+          html += "</tbody></table>";
+          document.getElementById("result_output").innerHTML = html;
+        } else {
+          document.getElementById("result_output").innerHTML = "<p>No results found.</p>";
+        }
+
+        document.getElementById("explanation_output").textContent = data.explanation;
+      }
+    }
+  </script>
+</body>
+</html>
