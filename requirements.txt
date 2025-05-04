@@ -6,3 +6,11 @@ openai
 langchain
 python-dotenv
 uvicorn
+app
+dotenv
+fastapi
+json
+os
+pkg_resources
+re
+toml
