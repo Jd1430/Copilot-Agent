@@ -6,4 +6,5 @@ openai
 langchain
 python-dotenv
 uvicorn
-
+fastapi
+os
