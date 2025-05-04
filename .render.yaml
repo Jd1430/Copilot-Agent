@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: copilot-studio
+    runtime: python
+    buildCommand: ""
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port 10000
+    envVars:
+      - key: MONGO_URI
+        value: ${MONGO_URI}
+      - key: GEMINI_API_KEY
+        value: ${GEMINI_API_KEY}
